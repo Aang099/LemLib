@@ -130,6 +130,34 @@ struct TurnToParams {
 };
 
 /**
+ * @brief Parameters for Chassis::swingTo
+ *
+ * We use a struct to simplify customization. Chassis::swingTo has many
+ * parameters and specifying them all just to set one optional param ruins
+ * readability. By passing a struct to the function, we can have named
+ * parameters, overcoming the c/c++ limitation
+ *
+ * @param forwards whether the robot should swing to face the point with the front of the robot.
+ * True by default
+ * @param left whether the robot should swing left or right to the target.
+ * True by default
+ * @param maxSpeed the maximum speed the robot can swing at. Value between 0-127.
+ *  127 by default
+ * @param minSpeed the minimum speed the robot can swing at. If set to a non-zero value,
+ *  the exit conditions will switch to less accurate but smoother ones. Value between 0-127.
+ *  0 by default
+ * @param earlyExitRange angle between the robot and target point where the movement will
+ *  exit. Only has an effect if minSpeed is non-zero.
+ */
+struct SwingToParams {
+        bool forwards = true;
+        bool left = true;
+        int maxSpeed = 127;
+        int minSpeed = 0;
+        float earlyExitRange = 0;
+};
+
+/**
  * @brief Parameters for Chassis::moveToPose
  *
  * We use a struct to simplify customization. Chassis::moveToPose has many
@@ -275,17 +303,6 @@ class Chassis {
          * @param x x location
          * @param y y location
          * @param timeout longest time the robot can spend moving
-         * @param async whether the function should be run asynchronously. true by default
-         */
-        void turnToPoint(float x, float y, int timeout, bool async = true);
-        /**
-         * @brief Turn the chassis so it is facing the target point
-         *
-         * The PID logging id is "angularPID"
-         *
-         * @param x x location
-         * @param y y location
-         * @param timeout longest time the robot can spend moving
          * @param params struct to simulate named parameters
          * @param async whether the function should be run asynchronously. true by default
          */
@@ -300,9 +317,21 @@ class Chassis {
          * @param params struct to simulate named parameters
          * @param async whether the function should be run asynchronously. true by default
          */
-        void turnToHeading(float theta, int timeout, bool async = true);
+        void turnToHeading(float theta, int timeout, TurnToParams params, bool async = true);
         /**
-         * @brief Turn the chassis so it is facing the target heading
+         * @brief Swing the chassis so it is facing the target point
+         *
+         * The PID logging id is "angularPID"
+         *
+         * @param x x location
+         * @param y y location
+         * @param timeout longest time the robot can spend moving
+         * @param params struct to simulate named parameters
+         * @param async whether the function should be run asynchronously. true by default
+         */
+        void swingToPoint(float x, float y, int timeout, SwingToParams params, bool async = true);
+        /**
+         * @brief Swing the chassis so it is facing the target heading
          *
          * The PID logging id is "angularPID"
          *
@@ -311,7 +340,7 @@ class Chassis {
          * @param params struct to simulate named parameters
          * @param async whether the function should be run asynchronously. true by default
          */
-        void turnToHeading(float theta, int timeout, TurnToParams params, bool async = true);
+        void swingToHeading(float theta, int timeout, SwingToParams params, bool async = true);
         /**
          * @brief Move the chassis towards the target pose
          *
